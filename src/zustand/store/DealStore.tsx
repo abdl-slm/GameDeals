@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { DEALS_API } from "../../utils/constants";
 import { Deal } from "../../model/deals";
 import { Result } from "../../model/result";
+import { useCallback, useState } from "react";
 
 const initialDealState: Deal = {
     internalName: '',
@@ -60,3 +61,26 @@ export const saveSingleData = create<Result>((set) => ({
         set({data: deal });
       },
   }));
+
+
+  function useFuncGetData(){
+    const [state, setState] = useState(initialState);
+  
+    const execute = useCallback(async () => {
+      setState({ ...initialState, loading: true });
+      try {
+        const res = await axios.get(DEALS_API);
+        setState({ ...initialState, success: true, data: res.data });
+      } catch (err) {
+        console.error("Error in data fetch:", err);
+        setState({ ...initialState, error: true, errorData: err.message });
+      }
+    }, []);
+  
+    return {
+      ...state,
+      execute,
+    };
+  };
+  
+  export default useFuncGetData;
